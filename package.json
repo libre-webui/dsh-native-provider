@@ -9,6 +9,8 @@
   "types": "./runtime/native-provider-plugin.d.ts",
   "files": [
     "runtime/",
+    "assets/",
+    "screenshots.json",
     "cordis.patch.yml",
     "README.md",
     "LICENSE",

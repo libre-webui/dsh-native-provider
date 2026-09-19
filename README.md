@@ -1,7 +1,7 @@
 # DeepSeek Harness provider bridge for Libre WebUI
 
 Use the models already configured in **DeepSeek Harness (DSH)** from
-**Libre WebUI**. Choose each native provider and model independently, including
+[Libre WebUI](https://github.com/libre-webui/libre-webui). Choose each native provider and model independently, including
 Flash and Pro. Provider credentials stay in DSH.
 
 This is the `@libre-webui/dsh-native-provider` plugin shown in DSH's Plugins
@@ -18,6 +18,10 @@ flowchart LR
 Libre WebUI manages conversations, usage, and Work's sandbox. DSH supplies the
 selected model connection. A Work task never gains access to DSH's native
 agents, sessions, files, or tool execution through this plugin.
+
+![Libre WebUI Work with DeepSeek Harness and a native model selected.](assets/lwui-work-dsh.png)
+
+Work interface shown with demo data.
 
 ## Requirements
 
