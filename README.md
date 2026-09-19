@@ -32,9 +32,8 @@ Work interface shown with demo data.
 - A running DSH profile with at least one working provider. This package is
   tested against DSH **0.1.6-alpha.2** and Cordis **4.0.2**; DSH APIs are
   pre-stable, so other versions need compatibility testing.
-- Libre WebUI with the native provider integration from
-  [libre-webui/libre-webui#219](https://github.com/libre-webui/libre-webui/pull/219).
-  Until that integration is released, use its `feat/cordis-bridge-lwui` branch.
+- [Libre WebUI 0.37.0 or later](https://github.com/libre-webui/libre-webui/releases/tag/v0.37.0),
+  which includes the native provider integration.
 
 The Unix connection does not support Windows, remote DSH hosts, or a stock
 Libre WebUI container connecting directly to a host socket. See
@@ -133,7 +132,7 @@ continuing. Removing this plugin does not delete native DSH sessions or keys.
 - [Configuration, verification, and troubleshooting](docs/CONFIGURATION.md)
 - [Security and privacy](SECURITY.md)
 - [Development and upstream synchronization](CONTRIBUTING.md)
-- [Libre WebUI integration guide](https://github.com/libre-webui/libre-webui/blob/feat/cordis-bridge-lwui/docs/65-CORDIS_CONFIGURATION.md#connect-models-from-a-running-dsh-instance)
+- [Libre WebUI integration guide](https://github.com/libre-webui/libre-webui/blob/main/docs/65-CORDIS_CONFIGURATION.md#connect-models-from-a-running-dsh-instance)
 
 ## Development
 
