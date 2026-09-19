@@ -1,0 +1,40 @@
+{
+  "name": "@libre-webui/dsh-native-provider",
+  "version": "0.1.0",
+  "description": "Use DeepSeek Harness providers in Libre WebUI over a private local connection.",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/native-provider-plugin.js",
+  "types": "./dist/native-provider-plugin.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/libre-webui/dsh-native-provider.git"
+  },
+  "homepage": "https://github.com/libre-webui/dsh-native-provider#readme",
+  "bugs": {
+    "url": "https://github.com/libre-webui/dsh-native-provider/issues"
+  },
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "type-check": "tsc --noEmit",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "bundle": "node scripts/prepare-bundle.mjs",
+    "format:check": "prettier --check .",
+    "format": "prettier --write .",
+    "sync:lwui": "node scripts/sync-from-lwui.mjs",
+    "check": "npm run format:check && npm run type-check && npm test"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "4.0.2",
+    "@deepseek-ai/dsh-credentials": "0.1.6-alpha.2",
+    "@deepseek-ai/dsh-llm": "0.1.6-alpha.2",
+    "@deepseek-ai/dsh-settings": "0.1.6-alpha.2",
+    "@types/node": "26.5.1",
+    "prettier": "3.9.6",
+    "typescript": "6.0.2"
+  }
+}
