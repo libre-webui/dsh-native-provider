@@ -1,6 +1,6 @@
 {
   "repository": "https://github.com/libre-webui/libre-webui",
-  "revision": "2308e45dd84120613f73ef8310931f6fcef4e6b7",
+  "revision": "afc4766259836101701cf866344270c6e39a4f84",
   "files": {
     "backend/src/cordis/dsh/native-provider-plugin.ts": "7358f3c5c83d7ce306db850d9c10ba8afb4a3174180a5eeb1bd003a5b82def4c",
     "backend/src/cordis/dsh/native-provider-protocol.ts": "9572d74dcb860a74ddc32bd36bc732cbdb4f81d922dc3b0692040b7d4baed75e"

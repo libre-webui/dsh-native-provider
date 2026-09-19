@@ -25,6 +25,7 @@ After the upstream changes have been committed:
 
 ```bash
 npm run sync:lwui -- /absolute/libre-webui-checkout
+npm run build:runtime
 npm run check
 ```
 
@@ -37,14 +38,24 @@ client; do not silently broaden the exposed service surface.
 
 ## Distribution
 
-The package is private to prevent accidental npm publication. Users build a local
-bundle with `npm run bundle`; its metadata includes the repository package version
-and its runtime has no npm dependencies. The package identity and component ID
-are stable so a new local bundle can replace an existing installation through
-DSH's supported plugin manager.
+Users paste `https://github.com/libre-webui/dsh-native-provider` in DSH's Add
+plugin dialog. The root manifest declares `dsh.bundle`, `cordis.patch.yml` chooses
+a socket below the user's DSH home, and `runtime/` contains the prebuilt entry.
+Keep `prepare`, `prepack`, `prepublish`, and install hooks absent: installation
+must not depend on a compiler, development dependencies, or build approval.
 
-Keep build output, generated bundles, sockets, credentials, and real profiles out
-of Git. Use a dedicated disposable profile for install tests. Do not test upgrades
+After runtime changes, run `npm run build:runtime` and commit its four generated
+files alongside the source. `npm run check` compares those files with a fresh
+build. Never edit `runtime/` by hand. The package's files whitelist also supports
+a self-contained tarball; a test imports that packed artifact with no dependencies.
+
+The package remains private to prevent accidental npm publication. A custom local
+bundle can still be generated with `npm run bundle -- /absolute/new-bundle
+/absolute/private/socket`; it retains its explicit path and stable package identity.
+
+Keep temporary `dist/` output, local bundles, sockets, credentials, and real profiles
+out of Git. The four verified `runtime/` distribution files are the exception.
+Use a dedicated disposable profile for install tests. Do not test upgrades
 by overwriting a user's installed plugin files or restarting their active profile.
 
 Use Conventional Commits with imperative descriptions. CI validates formatting,

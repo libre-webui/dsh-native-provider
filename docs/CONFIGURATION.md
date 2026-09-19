@@ -2,26 +2,40 @@
 
 ## Plugin configuration
 
-The generated `cordis.patch.yml` inserts one component:
+The public repository's `cordis.patch.yml` inserts one component:
 
 ```yaml
 - insert:
     - id: libre-webui-native-provider
       name: '@libre-webui/dsh-native-provider'
       config:
-        socketPath: /absolute/private-directory/provider.sock
+        socketPath: !!js dshHomePath('lwui-provider/llm.sock')
 ```
 
-Set optional limits in the bundle's patch **before** installing it. DSH also
-supports persistent overrides in the profile's own `cordis.patch.yml`, applied
-after the bundle's patch. Keep the stable component ID when overriding its
-configuration; do not edit the generated `cordis.yml` or dependency links.
+DSH resolves `dshHomePath` against `DSH_HOME`, or `~/.dsh` by default. The path
+is chosen on the machine running DSH, not the browser's machine. A custom local
+bundle prepared with `npm run bundle` keeps its explicit socket path instead.
 
-| Setting                 | Default  | Accepted values                                         |
-| ----------------------- | -------- | ------------------------------------------------------- |
-| `socketPath`            | Required | Absolute, normalized Unix path, at most 100 UTF-8 bytes |
-| `requestTimeoutMs`      | `600000` | Integer from 10 to 3600000                              |
-| `maxConcurrentRequests` | `8`      | Integer from 1 to 64                                    |
+To override the socket or limits, use DSH's supported user profile
+`cordis.patch.yml` (normally `$DSH_HOME/profiles/web/cordis.patch.yml`):
+
+```yaml
+- id: libre-webui-native-provider
+  config:
+    socketPath: /absolute/private-directory/provider.sock
+    requestTimeoutMs: 600000
+    maxConcurrentRequests: 8
+```
+
+Retain any other existing profile patch entries. Do not edit DSH's generated
+`cordis.yml` or the installed package files. Apply profile configuration using
+DSH's normal reload/restart process, then point LWUI at the same socket.
+
+| Setting                 | Default                                                  | Accepted values                                         |
+| ----------------------- | -------------------------------------------------------- | ------------------------------------------------------- |
+| `socketPath`            | `<DSH home>/lwui-provider/llm.sock` in the public bundle | Absolute, normalized Unix path, at most 100 UTF-8 bytes |
+| `requestTimeoutMs`      | `600000`                                                 | Integer from 10 to 3600000                              |
+| `maxConcurrentRequests` | `8`                                                      | Integer from 1 to 64                                    |
 
 Unknown configuration keys fail at startup. The timeout covers the complete
 request, including provider/model lookup. A caller disconnect, timeout, profile
@@ -38,6 +52,10 @@ parent must be a physical directory owned by that user with permissions `0700`;
 the socket uses `0600`. No directory component may be a symbolic link.
 The plugin creates a missing private directory but refuses an unsafe existing
 directory or occupied socket path.
+
+The default socket is shared by profiles in the same DSH home. Enable it in
+one profile, or override `socketPath` for additional profiles. A second running
+instance refuses to replace the first one's socket.
 
 On macOS, `/tmp` is a symbolic link; use a path below your physical home directory
 for the actual connection. Shorten long home paths by choosing another physical,

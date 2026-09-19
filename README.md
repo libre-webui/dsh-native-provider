@@ -22,9 +22,9 @@ agents, sessions, files, or tool execution through this plugin.
 ## Requirements
 
 - macOS or Linux, with both applications running as the **same OS user**.
-- Node.js **22.22 or later** and npm to build the bundle.
-- The DSH CLI and **pnpm** on your `PATH`. DSH uses pnpm to install bundles;
-  npm is used to build this repository.
+- Node.js **22.22 or later**, as required by the supported DSH installation.
+- **pnpm** available to DSH's plugin manager. You do not need npm, a source
+  checkout, or a compiler to install this plugin through DSH.
 - A running DSH profile with at least one working provider. This package is
   tested against DSH **0.1.6-alpha.2** and Cordis **4.0.2**; DSH APIs are
   pre-stable, so other versions need compatibility testing.
@@ -38,28 +38,35 @@ Libre WebUI container connecting directly to a host socket. See
 
 ## Install
 
-This package is distributed from this repository; it is **not published to npm**.
-Build it, then install the generated local bundle with DSH's plugin manager.
+In **DSH → Plugins → Add plugin**, paste this into **Package name or address**:
 
-```bash
-git clone https://github.com/libre-webui/dsh-native-provider.git
-cd dsh-native-provider
-npm ci
-npm run build
-npm run bundle -- "$HOME/.dsh/lwui-provider-v0.1.0" "$HOME/.dsh/lwui-provider/llm.sock"
-dsh plugin --profile web add "$HOME/.dsh/lwui-provider-v0.1.0"
+```text
+https://github.com/libre-webui/dsh-native-provider
 ```
 
-Use the profile that runs your DSH instance instead of `web` if different.
-The bundle directory must be new. Its parent must already exist. Use absolute,
-normalized paths; the complete socket path must fit within **100 UTF-8 bytes**.
-DSH creates the private socket directory if necessary.
+Click **Install**. The repository includes the built plugin and its DSH bundle
+patch. Installation requires no build commands or install-script approval.
 
-Restart that DSH profile using your usual launch method. In **Plugins**, verify
-`native-provider` has version **0.1.0**, a description, and a running component.
+Verify **native-provider 0.1.1** has a running component. DSH applies a fresh
+installation to a live profile; follow a restart notice if DSH displays one.
 DSH derives the short title from the package name; the full package identity
-remains `@libre-webui/dsh-native-provider` so existing installations can upgrade.
-An already disabled installation stays disabled until you enable it.
+is `@libre-webui/dsh-native-provider`. Use the **GitHub URL**, because the bare
+package name is not published on npm.
+
+The default socket is `<DSH home>/lwui-provider/llm.sock`. Normally this means
+`$HOME/.dsh/lwui-provider/llm.sock`; a configured `DSH_HOME` takes precedence.
+DSH creates the private socket directory. See [configuration](docs/CONFIGURATION.md)
+if you need a different path or have multiple DSH profiles.
+
+The optional CLI equivalent is:
+
+```bash
+dsh plugin --profile web add https://github.com/libre-webui/dsh-native-provider
+```
+
+Use your actual profile name. Restart that profile after CLI installation.
+
+## Connect Libre WebUI
 
 Then configure Libre WebUI's `cordis.config.yml` with the **same absolute path**:
 
@@ -88,21 +95,22 @@ error instead of silently switching provider.
 
 ## Upgrade an existing installation
 
-Let active requests finish before changing the installed bundle or restarting
-DSH. Update this checkout, run `npm ci` and `npm run build`, then prepare a **new
-bundle directory** and re-add it under the same package identity:
+For the old locally prepared **0.0.0/0.1.0** bundle, let active requests finish,
+then use **Uninstall** on that plugin's page. Return to **Add plugin**, paste
+the GitHub URL above, and click **Install**. This replaces the local-only source
+with the public repository. Native DSH sessions and provider credentials are
+not deleted. With the usual DSH home, the default socket matches the old guide;
+retain a custom socket using the override in [configuration](docs/CONFIGURATION.md).
+
+For subsequent CLI updates of the GitHub-installed plugin:
 
 ```bash
-git pull --ff-only
-npm ci
-npm run build
-npm run bundle -- "$HOME/.dsh/lwui-provider-updated" "$HOME/.dsh/lwui-provider/llm.sock"
-dsh plugin --profile web add "$HOME/.dsh/lwui-provider-updated"
+dsh plugin --profile web update @libre-webui/dsh-native-provider
 ```
 
-Restart the profile and verify the version in Plugins. Keep the previous bundle
-until verification completes. To roll back, re-add its path and restart. For a
-local source, `dsh plugin update` does not pull this Git repository for you.
+Restart the profile and verify its version. To pin or roll back to a reviewed
+revision, install `github:libre-webui/dsh-native-provider#<commit>` instead of
+the moving default branch. A disabled installation remains disabled until enabled.
 
 ## Remove
 
@@ -137,8 +145,9 @@ only the compiled plugin, protocol, package metadata, patch, README, and license
 no npm runtime dependencies are installed into DSH.
 
 The implementation is maintained with Libre WebUI's matching client and mirrored
-here for independent installation. `upstream.json` records the source revision
-and file hashes. See [contributing](CONTRIBUTING.md) before changing the wire
-protocol.
+here. `upstream.json` records the source revision and file hashes. The committed
+`runtime/` files make public Git installation work without a compiler; CI checks
+that they exactly match a fresh TypeScript build. See
+[contributing](CONTRIBUTING.md) before changing the wire protocol.
 
 Apache-2.0. Maintained by [Libre WebUI](https://github.com/libre-webui).
