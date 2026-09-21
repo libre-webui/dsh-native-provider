@@ -8,6 +8,17 @@ This is the `@libre-webui/dsh-native-provider` plugin shown in DSH's Plugins
 page. It connects the two applications through a private Unix socket. It adds
 no web server, telemetry, agent sessions, or host tools.
 
+> [!WARNING]
+> **Review the external DSH profile's privacy settings before connecting.**
+> Upstream base profiles enable DeepSeek session-log and plugin-package
+> contributions, plus feedback-triggered OTel exports, by default. OTel exports
+> can contain conversation context and tool data.
+> This plugin's private socket does not disable those features. Follow the
+> [three independent opt-outs](docs/CONFIGURATION.md#disable-the-three-upload-paths)
+> before use; `DSH_TELEMETRY_DISABLED=1` only disables OTel. See the
+> [pinned upstream defaults](docs/CONFIGURATION.md#external-dsh-privacy-defaults)
+> and the distinction between native bridge requests and DSH sessions.
+
 ```mermaid
 flowchart LR
   LWUI[Libre WebUI: Chat, Work, titles] -->|Private Unix socket| Bridge[This plugin inside DSH]

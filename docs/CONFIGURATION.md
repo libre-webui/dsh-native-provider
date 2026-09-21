@@ -1,5 +1,90 @@
 # Configuration and troubleshooting
 
+## External DSH privacy defaults
+
+This plugin adds no telemetry uploader, but the independently running DSH
+profile has its own data-sharing behavior. The following upstream defaults were
+reviewed on **2026-09-21** at
+[DSH revision `ddefc45`](https://github.com/deepseek-ai/deepseek-harness/tree/ddefc45fbc7f8e46dd73185e68295696d1297887):
+
+- [OTel session exports](https://github.com/deepseek-ai/deepseek-harness/blob/ddefc45fbc7f8e46dd73185e68295696d1297887/packages/session/session-telemetry-otel/README.md)
+  default to `FEEDBACK_ONLY` in base profiles. New feedback can release the
+  canonical session-log prefix, including stored context, regardless of model
+  provider. This can include messages, tool arguments and results, and workspace
+  paths.
+- [DeepSeek session-log contributions](https://github.com/deepseek-ai/deepseek-harness/blob/ddefc45fbc7f8e46dd73185e68295696d1297887/packages/session/session-log-deepseek/README.md)
+  default to `enabled: true`. The `dsh_session_log` field attaches the unaccepted
+  session-log suffix to DeepSeek-adapter requests with a live `sessionId`,
+  including requests through configured gateways.
+- [Plugin-package inventory contributions](https://github.com/deepseek-ai/deepseek-harness/blob/ddefc45fbc7f8e46dd73185e68295696d1297887/packages/llm/plugin-package-inventory-deepseek/README.md)
+  default to `enabled: true`. The `dsh_plugin_packages` field adds active package
+  names and versions to DeepSeek-adapter requests, including calls without a
+  session ID.
+
+The native bridge rejects `sessionId` and does not create DSH sessions, so its
+direct model calls do not attach a native session log through that contributor.
+Package inventory can still accompany them unless disabled. The external
+[DeepSeek adapter](https://github.com/deepseek-ai/deepseek-harness/blob/ddefc45fbc7f8e46dd73185e68295696d1297887/packages/llm/llm-deepseek/README.md#wire-flow)
+also supplies request identification, including a stable anonymous user ID;
+the three controls below do not remove those headers.
+
+### Disable the three upload paths
+
+If DSH is already running, previously authorized exports can finish during
+reload or shutdown. If no further delivery is acceptable, block outbound
+collector traffic before editing the patch or stopping that process. Disabling
+uploads does not retract data already delivered. See the
+[upstream shutdown behavior](https://github.com/deepseek-ai/deepseek-harness/blob/ddefc45fbc7f8e46dd73185e68295696d1297887/packages/session/session-telemetry-otel/README.md#failures-and-shutdown).
+
+Add or update these rows in the **external DSH profile's** `cordis.patch.yml`,
+normally `$DSH_HOME/profiles/web/cordis.patch.yml` (`DSH_HOME` defaults to
+`~/.dsh`). Use the profile you actually run and retain its other entries:
+
+```yaml
+- id: session-telemetry-otel
+  disabled: true
+  config:
+    mode: DISABLED
+
+- id: session-log-deepseek
+  disabled: true
+  config:
+    enabled: false
+
+- id: plugin-package-inventory-deepseek
+  disabled: true
+  config:
+    enabled: false
+```
+
+Each row is disabled at the Loader and retains its own disabled configuration
+if its row is later enabled. These are DSH profile overrides, not fields inside
+this plugin's `config` or Libre WebUI's settings. Do not edit generated
+`cordis.yml` or installed bundle files.
+
+The [upstream CLI reference](https://github.com/deepseek-ai/deepseek-harness/blob/ddefc45fbc7f8e46dd73185e68295696d1297887/apps/cli/reference/README.md#profile-boot)
+specifies that each override replaces the targeted row's complete `config`.
+Home-level `$DSH_HOME/cordis.patch.yml` and later `--patch` overlays take
+precedence over profile values. Inspect the effective configuration for your
+existing profile, including any overlays you use:
+
+```bash
+dsh --profile web --dump-config
+```
+
+Confirm all three rows have `disabled: true` and the configuration values above,
+then restart that DSH profile. Review the effective configuration again after
+changing bundles, overrides, or DSH versions.
+
+[`DSH_TELEMETRY_DISABLED=1`](https://github.com/deepseek-ai/deepseek-harness/blob/ddefc45fbc7f8e46dd73185e68295696d1297887/apps/cli/reference/README.md#shared-deployment-behavior)
+on the DSH process disables only OTel; it does not disable session-log or package
+inventory contributions. Blocking only the OTel collector also misses the
+contributions attached to inference requests.
+
+These opt-outs do not erase data already uploaded or promise zero network
+traffic. Model inputs still go to the selected provider, and provider discovery
+may make network requests. A local socket does not make a remote provider local.
+
 ## Plugin configuration
 
 The public repository's `cordis.patch.yml` inserts one component:
